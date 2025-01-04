@@ -14,31 +14,43 @@ import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
 import { MissingImageIcon } from '../components/MissingImageIcon'
 import './styles/pulse.css'
+import { useSearchParams } from 'next/navigation'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
 export default function Page() {
-  const defaultColors = {
-    U: '#FFFF00', // Yellow
-    D: '#FFFFFF', // White
-    L: '#FFA500', // Orange
-    R: '#FF0000', // Red
-    F: '#0000FF', // Blue
-    B: '#00FF00', // Green
-  }
+  const searchParams = useSearchParams()
 
-  const [colors, setColors] = useState(defaultColors)
-  const [width, setWidth] = useState(10)
-  const [height, setHeight] = useState(10)
-  const [dither, setDither] = useState<DitherType>('FloydSteinberg')
-  const [originalImage, setOriginalImage] = useState<string | null>(null)
+  const [colors, setColors] = useState(() => {
+    const defaultColors = {
+      U: '#FFFF00', D: '#FFFFFF', L: '#FFA500', R: '#FF0000', F: '#0000FF', B: '#00FF00'
+    }
+    return Object.fromEntries(
+      Object.entries(defaultColors).map(([key, defaultValue]) => [
+        key,
+        searchParams.get(key) || defaultValue
+      ])
+    )
+  })
+
+  const [width, setWidth] = useState(() => parseInt(searchParams.get('width') || '10'))
+  const [height, setHeight] = useState(() => parseInt(searchParams.get('height') || '10'))
+  const [dither, setDither] = useState<DitherType>(() => 
+    (searchParams.get('dither') as DitherType) || 'FloydSteinberg'
+  )
+  const [forceExactSize, setForceExactSize] = useState(() => 
+    searchParams.get('forceExactSize') === 'true'
+  )
+  const [originalImage, setOriginalImage] = useState<string | null>(() => 
+    searchParams.get('originalImage')
+  )
+
   const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [cubes, setCubes] = useState<CubeInfo[]>([])
   const [skipX, setSkipX] = useState('')
   const [skipY, setSkipY] = useState('')
   const [isLoading, setIsLoading] = useState(false) // Added loading state
   const [showHelp, setShowHelp] = useState(false)
-  const [forceExactSize, setForceExactSize] = useState(false)
   const [lastProcessedConfig, setLastProcessedConfig] = useState<null | {
     colors: typeof colors;
     width: number;
@@ -57,6 +69,16 @@ export default function Page() {
   useEffect(() => {
     setCubes([]);
   }, [processedImage]);
+
+  useEffect(() => {
+    const autoProcess = async () => {
+      if (originalImage) {
+        const blob = await processImage()
+        await getCubeAlgorithms(blob)
+      }
+    }
+    autoProcess()
+  }, [])
 
   const handleColorChange = (face: keyof typeof colors, color: string) => {
     setColors(prevColors => ({ ...prevColors, [face]: color }))
@@ -88,7 +110,9 @@ export default function Page() {
 
     const colorString = `${dither};${3*width}x${3*height}${forceExactSize ? '!' : ''};${Object.values(colors).map(hexToRgb).join(';')}`
     const url = `https://www.cs.toronto.edu/~motiwala/rubiksify.cgi?${encodeURIComponent(colorString)}`
-
+    
+    let processedBlob;
+    
     try {
       const res = await fetch(url, {
         method: 'POST',
@@ -97,10 +121,11 @@ export default function Page() {
 
       if (!res.ok) throw new Error('Failed to process image')
 
-      const processedBlob = await res.blob()
+      processedBlob = await res.blob()
       setProcessedImage(URL.createObjectURL(processedBlob))
     } catch (error) {
       console.error('Error processing image:', error)
+      return;
     }
 
     setLastProcessedConfig({
@@ -111,16 +136,23 @@ export default function Page() {
       forceExactSize,
       originalImage,
     });
+    return processedBlob
   }, [originalImage, width, height, colors, dither, forceExactSize])
 
-  const getCubeAlgorithms = useCallback(async () => {
-    if (!processedImage) return
+  const getCubeAlgorithms = useCallback(async (processedBlob?: Blob) => {
+    if (!processedImage && !processedBlob) return
     setIsLoading(true)
     try {
-      const response = await fetch(processedImage)
-      const blob = await response.blob()
-      const arrayBuffer = await blob.arrayBuffer()
-      const uint8Array = new Uint8Array(arrayBuffer)
+      let uint8Array: Uint8Array
+      if (processedBlob) {
+        const arrayBuffer = await processedBlob.arrayBuffer()
+        uint8Array = new Uint8Array(arrayBuffer)
+      } else {
+        const response = await fetch(processedImage!)
+        const blob = await response.blob()
+        const arrayBuffer = await blob.arrayBuffer()
+        uint8Array = new Uint8Array(arrayBuffer)
+      }
 
       const result = await getCubesFor(uint8Array, colors)
       if (result.cubes) {
@@ -338,7 +370,7 @@ export default function Page() {
         )}
 
         {processedImage && cubes.length === 0 && (
-          <Button onClick={getCubeAlgorithms} className="" disabled={isLoading}>
+          <Button onClick={() => getCubeAlgorithms()} className="" disabled={isLoading}>
             {isLoading ? 'Loading...' : 'Get cube algorithms'}
           </Button>
         )}
