@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowRight, HelpCircle } from 'lucide-react'
 import { hexToRgb } from '../lib/colorUtils'
-import { CubeInfo, getCubesFor } from '../lib/getCubesFor'
+import { Colors, CubeInfo, getCubesFor } from '../lib/getCubesFor'
 import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
 import { MissingImageIcon } from '../components/MissingImageIcon'
@@ -18,9 +18,12 @@ import { useSearchParams } from 'next/navigation'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
-export default function Page() {
+function SearchParamsWrapper({ children }: { children: (searchParams: URLSearchParams) => React.ReactNode }) {
   const searchParams = useSearchParams()
+  return <>{children(searchParams)}</>
+}
 
+function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
   const [colors, setColors] = useState(() => {
     const defaultColors = {
       U: '#FFFF00', D: '#FFFFFF', L: '#FFA500', R: '#FF0000', F: '#0000FF', B: '#00FF00'
@@ -161,7 +164,7 @@ export default function Page() {
         uint8Array = new Uint8Array(arrayBuffer)
       }
 
-      const result = await getCubesFor(uint8Array, colors)
+      const result = await getCubesFor(uint8Array, colors as Colors)
       if (result.cubes) {
         setCubes(result.cubes)
       } else if (result.error) {
@@ -436,6 +439,18 @@ export default function Page() {
         )}
       </div>
     </div>
+  )
+}
+
+export const dynamic = 'force-dynamic'
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchParamsWrapper>
+        {(searchParams) => <PageContent searchParams={searchParams} />}
+      </SearchParamsWrapper>
+    </Suspense>
   )
 }
 

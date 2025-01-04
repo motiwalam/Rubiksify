@@ -1,6 +1,6 @@
 import { rgbComponents } from './colorUtils'
 
-type Colors = {
+export type Colors = {
   U: string
   D: string
   L: string
