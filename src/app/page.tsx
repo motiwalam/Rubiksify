@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Button } from '@/components/ui/button'
@@ -60,6 +60,13 @@ export default function Page() {
     originalImage: string | null;
   }>(null);
   const listRef = useRef<List>(null)
+
+  const [cubesW, cubesH] = useMemo<[number,number]>(() => {
+    if (cubes.length === 0)
+      return [-1, -1]
+    const {x,y} = cubes[cubes.length-1]
+    return [x+1, y+1]
+  }, [cubes])
 
   useEffect(() => {
     setCubes([]);
@@ -403,6 +410,9 @@ export default function Page() {
                 />
               </div>
               <Button onClick={skipToCoordinates}>Skip to coordinates</Button>
+            </div>
+            <div className="w-full text-left">
+              Total of <span className="font-bold">{cubes.length}</span> cube{cubes.length !== 1 ? 's' : ''} needed. Final image is <span className="">{cubesW}</span>x<span className="">{cubesH}</span> in cubes and <span className="">{3*cubesW}</span>x<span className="">{3*cubesH}</span> in pixels.
             </div>
             <div className="rounded-lg border-gray-600 border-2 w-full">
               <div className="w-full h-[600px]">
