@@ -116,7 +116,7 @@ export default function Page() {
       alert('Please enter valid x and y coordinates')
       return
     }
-    const index = cubes.findIndex(cube => cube.x === x && cube.y === y);
+    const index = cubes.findIndex(cube => cube.x === x && cube.y === y)
     if (index === -1) {
       alert('No cube found with the given coordinates')
       return
@@ -130,123 +130,132 @@ export default function Page() {
     <div className="flex flex-col items-center justify-center pt-2 px-4 pb-4">
       <div className="flex flex-col items-center gap-6 w-full max-w-4xl">
         <h1 className="text-2xl font-bold">Rubiksify: painting with Rubik&apos;s Cubes!</h1>
-
+        <hr className="w-full border-t border-gray-400 my-1" />
+        {showHelp && (
+          <div className="bg-gray-100 p-4 rounded-md mb-2 text-sm">
+            Hold your cube in front of you (in the solved state). The color under U should be the color on the top of your cube, D should be the color on the bottom, L the color on the left, R on the right, F on the front, and B on the back. You should always be able to make this happen, either by rotating the cube or editing the colors (or both).
+          </div>
+        )}
         <div className="relative w-full">
-          <button
-            onClick={() => setShowHelp(!showHelp)}
-            className="absolute top-0 right-0 p-2 text-gray-600 hover:text-gray-900"
-            aria-label="Toggle help"
-          >
-            <HelpCircle className="w-5 h-5" />
-          </button>
-          {showHelp && (
-            <div className="bg-gray-100 p-4 rounded-md mb-4 text-sm">
-              Hold your cube in front of you (in the solved state). The color under U should be the color on the top of your cube, D should be the color on the bottom, L the color on the left, R on the right, F on the front, and B on the back. You should always be able to make this happen, either by rotating the cube or editing the colors (or both).
+          <div className="absolute top-0 right-0 p-2">
+            <button
+              onClick={() => setShowHelp(!showHelp)}
+              className="text-gray-600 hover:text-gray-900"
+              aria-label="Toggle help"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="rounded-lg p-4 w-full">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 w-full">
+              {faces.map((face) => (
+                <div key={face} className="flex flex-col items-center gap-2">
+                  <Label htmlFor={`color-${face}`}>{face}</Label>
+                  <Input
+                    type="color"
+                    id={`color-${face}`}
+                    value={colors[face]}
+                    onChange={(e) => handleColorChange(face, e.target.value)}
+                    className="h-10 w-20 cursor-pointer"
+                  />
+                </div>
+              ))}
             </div>
-          )}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 w-full">
-            {faces.map((face) => (
-              <div key={face} className="flex flex-col items-center gap-2">
-                <Label htmlFor={`color-${face}`}>{face}</Label>
-                <Input
-                  type="color"
-                  id={`color-${face}`}
-                  value={colors[face]}
-                  onChange={(e) => handleColorChange(face, e.target.value)}
-                  className="h-10 w-20 cursor-pointer"
-                />
-              </div>
-            ))}
           </div>
+          <hr className="w-full border-t border-gray-400 my-1" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 w-full">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="width">Width (in cubes)</Label>
+        <div className="rounded-lg p-4 w-full space-y-4">
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="width">Width (in cubes)</Label>
+              <Input
+                type="number"
+                id="width"
+                value={width}
+                onChange={(e) => setWidth(Number(e.target.value))}
+                min={1}
+                className="w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="height">Height (in cubes)</Label>
+              <Input
+                type="number"
+                id="height"
+                value={height}
+                onChange={(e) => setHeight(Number(e.target.value))}
+                min={1}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <ForceExactSizeToggle checked={forceExactSize} onCheckedChange={setForceExactSize} />
+          <div className="flex flex-col gap-2 w-full">
+            <Label htmlFor="dither">Dither</Label>
+            <Select value={dither} onValueChange={(value: DitherType) => setDither(value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select dither type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="None">None</SelectItem>
+                <SelectItem value="Riemersma">Riemersma</SelectItem>
+                <SelectItem value="FloydSteinberg">Floyd-Steinberg</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2 w-full">
+            <Label htmlFor="fileUpload">Image to Rubiksify</Label>
             <Input
-              type="number"
-              id="width"
-              value={width}
-              onChange={(e) => setWidth(Number(e.target.value))}
-              min={1}
+              id="fileUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
               className="w-full"
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="height">Height (in cubes)</Label>
-            <Input
-              type="number"
-              id="height"
-              value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
-              min={1}
-              className="w-full"
-            />
+        </div>
+        <hr className="w-full border-t border-gray-400 my-1" />
+
+        <div className="rounded-lg p-4 w-full">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
+            <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
+              <Label>Original</Label>
+              {originalImage && (
+                <div className="w-full h-64 rounded-md overflow-hidden">
+                  <img
+                    src={originalImage}
+                    alt="Original"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={processImage}
+              disabled={!originalImage}
+              className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+              aria-label="Rubiksify"
+            >
+              <ArrowRight className="w-8 h-8" />
+            </Button>
+
+            <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
+              <Label>Rubiksified</Label>
+              {processedImage && (
+                <div className="w-full h-64 rounded-md overflow-hidden">
+                  <img
+                    src={processedImage}
+                    alt="Rubiksified"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <ForceExactSizeToggle checked={forceExactSize} onCheckedChange={setForceExactSize} />
-
-        <div className="flex flex-col gap-2 w-full">
-          <Label htmlFor="dither">Dither</Label>
-          <Select value={dither} onValueChange={(value: DitherType) => setDither(value)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select dither type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="None">None</SelectItem>
-              <SelectItem value="Riemersma">Riemersma</SelectItem>
-              <SelectItem value="FloydSteinberg">Floyd-Steinberg</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2 w-full">
-          <Label htmlFor="fileUpload">Image to Rubiksify</Label>
-          <Input
-            id="fileUpload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="w-full"
-          />
-        </div>
-
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
-          <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
-            <Label>Original</Label>
-            {originalImage && (
-              <div className="w-full h-64 border border-gray-300 rounded-md overflow-hidden">
-                <img
-                  src={originalImage}
-                  alt="Original"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            )}
-          </div>
-
-          <Button
-            onClick={processImage}
-            disabled={!originalImage}
-            className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-            aria-label="Rubiksify"
-          >
-            <ArrowRight className="w-8 h-8" />
-          </Button>
-
-          <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
-            <Label>Rubiksified</Label>
-            {processedImage && (
-              <div className="w-full h-64 border border-gray-300 rounded-md overflow-hidden">
-                <img
-                  src={processedImage}
-                  alt="Rubiksified"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            )}
-          </div>
-        </div>
+        <hr className="w-full border-t border-gray-400 my-1" />
 
         {processedImage && cubes.length === 0 && (
           <Button onClick={getCubeAlgorithms} className="mt-4" disabled={isLoading}>
@@ -283,21 +292,23 @@ export default function Page() {
               </div>
               <Button onClick={skipToCoordinates}>Skip to coordinates</Button>
             </div>
-            <div className="w-full h-[600px]">
-              <AutoSizer>
-                {({ height, width }) => (
-                  <List
-                    ref={listRef}
-                    height={height}
-                    itemCount={cubes.length}
-                    itemSize={325}
-                    width={width}
-                    itemData={{ cubes, colors }}
-                  >
-                    {RubiksCardListItem}
-                  </List>
-                )}
-              </AutoSizer>
+            <div className="rounded-lg p-4 w-full">
+              <div className="w-full h-[600px]">
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <List
+                      ref={listRef}
+                      height={height}
+                      itemCount={cubes.length}
+                      itemSize={325}
+                      width={width}
+                      itemData={{ cubes, colors }}
+                    >
+                      {RubiksCardListItem}
+                    </List>
+                  )}
+                </AutoSizer>
+              </div>
             </div>
           </>
         )}
