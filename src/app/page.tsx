@@ -12,6 +12,7 @@ import { hexToRgb } from '../lib/colorUtils'
 import { CubeInfo, getCubesFor } from '../lib/getCubesFor'
 import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
+import './styles/pulse.css'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
@@ -37,6 +38,14 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false) // Added loading state
   const [showHelp, setShowHelp] = useState(false)
   const [forceExactSize, setForceExactSize] = useState(false)
+  const [lastProcessedConfig, setLastProcessedConfig] = useState<null | {
+    colors: typeof colors;
+    width: number;
+    height: number;
+    dither: DitherType;
+    forceExactSize: boolean;
+    originalImage: string | null;
+  }>(null);
   const listRef = useRef<List>(null)
 
   useEffect(() => {
@@ -85,6 +94,15 @@ export default function Page() {
     } catch (error) {
       console.error('Error processing image:', error)
     }
+
+    setLastProcessedConfig({
+      colors,
+      width,
+      height,
+      dither,
+      forceExactSize,
+      originalImage,
+    });
   }, [originalImage, width, height, colors, dither, forceExactSize])
 
   const getCubeAlgorithms = useCallback(async () => {
@@ -123,6 +141,18 @@ export default function Page() {
     }
     listRef.current?.scrollToItem(index, 'auto')
   }
+
+  const hasConfigChanged = () => {
+    if (!lastProcessedConfig) return true;
+    return (
+      JSON.stringify(colors) !== JSON.stringify(lastProcessedConfig.colors) ||
+      width !== lastProcessedConfig.width ||
+      height !== lastProcessedConfig.height ||
+      dither !== lastProcessedConfig.dither ||
+      forceExactSize !== lastProcessedConfig.forceExactSize ||
+      originalImage !== lastProcessedConfig.originalImage
+    );
+  };
 
   const faces = Object.keys(colors) as Array<keyof typeof colors>
 
@@ -235,7 +265,9 @@ export default function Page() {
             <Button
               onClick={processImage}
               disabled={!originalImage}
-              className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+              className={`flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 ${
+                originalImage && hasConfigChanged() ? 'pulse' : ''
+              }`}
               aria-label="Rubiksify"
             >
               <ArrowRight className="w-8 h-8" />
