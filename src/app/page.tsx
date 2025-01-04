@@ -16,6 +16,7 @@ import { MissingImageIcon } from '../components/MissingImageIcon'
 import './styles/pulse.css'
 import { useSearchParams } from 'next/navigation'
 import { ExportPopup } from '../components/ExportPopup'
+import { SharePopup } from '../components/SharePopup'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
@@ -75,6 +76,8 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
   const [exportedData, setExportedData] = useState<string | null>(null)
   const [isExportPopupOpen, setIsExportPopupOpen] = useState(false)
   const [numExported, setNumExported] = useState(0);
+  const [isSharePopupOpen, setIsSharePopupOpen] = useState(false)
+  const [sharedUrl, setSharedUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setCubes([]);
@@ -152,6 +155,10 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
       originalImage,
     });
     return processedBlob
+  }, [originalImage, width, height, colors, dither, forceExactSize])
+
+  useEffect(() => {
+    setSharedUrl(null)
   }, [originalImage, width, height, colors, dither, forceExactSize])
 
   const getCubeAlgorithms = useCallback(async (processedBlob?: Blob) => {
@@ -239,6 +246,20 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
     } finally {
       setIsExporting(false)
     }
+  }
+
+  const handleShare = (imageUrl: string) => {
+    const params = new URLSearchParams({
+      width: width.toString(),
+      height: height.toString(),
+      dither,
+      originalImage: imageUrl,
+      forceExactSize: forceExactSize.toString(),
+      ...colors
+    })
+    const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    setSharedUrl(newUrl)
+    // setIsSharePopupOpen(false)
   }
 
   return (
@@ -459,17 +480,32 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
                 </AutoSizer>
               </div>
             </div>
-            <div className="w-full">
+            <div className="w-full flex justify-between items-center">
               <Button onClick={handleExport} disabled={isExporting || cubes.length === 0} className="w-40">
                 {isExporting ? `${numExported}/${cubes.length}` : 'Export'}
               </Button>
+              <Button onClick={() => setIsSharePopupOpen(true)} className="w-40">
+                Share
+              </Button>
             </div>
-            {exportedData && (
-              <ExportPopup
-                isOpen={isExportPopupOpen}
-                onClose={() => setIsExportPopupOpen(false)}
-                jsonData={exportedData}
-              />
+            {exportedData && (<ExportPopup
+              isOpen={isExportPopupOpen}
+              onClose={() => setIsExportPopupOpen(false)}
+              jsonData={exportedData}
+            />
+            )}
+            <SharePopup
+              isOpen={isSharePopupOpen}
+              onClose={() => setIsSharePopupOpen(false)}
+              onShare={handleShare}
+              originalImage={originalImage}
+              shareUrl={sharedUrl}
+            />
+            {sharedUrl && (
+              <div className="mt-4 p-4 bg-gray-100 rounded-md">
+                <p className="font-semibold">Shareable URL:</p>
+                <p className="break-all">{sharedUrl}</p>
+              </div>
             )}
           </>
         )}
