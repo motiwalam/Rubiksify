@@ -160,14 +160,14 @@ export default function Page() {
     <div className="flex flex-col items-center justify-center pt-2 px-4 pb-4">
       <div className="flex flex-col items-center gap-6 w-full max-w-4xl">
         <h1 className="text-2xl font-bold">Rubiksify: painting with Rubik&apos;s Cubes!</h1>
-        <hr className="w-full border-t border-gray-400 my-1" />
+        <hr className="w-full border-t border-gray-400 mt-1" />
         {showHelp && (
           <div className="bg-gray-100 p-4 rounded-md mb-2 text-sm">
             Hold your cube in front of you (in the solved state). The color under U should be the color on the top of your cube, D should be the color on the bottom, L the color on the left, R on the right, F on the front, and B on the back. You should always be able to make this happen, either by rotating the cube or editing the colors (or both).
           </div>
         )}
         <div className="relative w-full">
-          <div className="absolute top-0 right-0 p-2">
+          <div className="absolute top-0 right-0">
             <button
               onClick={() => setShowHelp(!showHelp)}
               className="text-gray-600 hover:text-gray-900"
@@ -176,7 +176,7 @@ export default function Page() {
               <HelpCircle className="w-5 h-5" />
             </button>
           </div>
-          <div className="rounded-lg p-4 w-full">
+          <div className="rounded-lg p-1 w-full">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 w-full">
               {faces.map((face) => (
                 <div key={face} className="flex flex-col items-center gap-2">
@@ -192,10 +192,10 @@ export default function Page() {
               ))}
             </div>
           </div>
-          <hr className="w-full border-t border-gray-400 my-1" />
+          <hr className="w-full border-t border-gray-400 mt-2" />
         </div>
 
-        <div className="rounded-lg p-4 w-full space-y-4">
+        <div className="rounded-lg p-1 w-full space-y-4">
           <div className="grid grid-cols-2 gap-4 w-full">
             <div className="flex flex-col gap-2">
               <Label htmlFor="width">Width (in cubes)</Label>
@@ -245,21 +245,21 @@ export default function Page() {
             />
           </div>
         </div>
-        <hr className="w-full border-t border-gray-400 my-1" />
+        <hr className="w-full border-t border-gray-400 mt-1" />
 
-        <div className="rounded-lg p-4 w-full">
+        <div className="rounded-lg  w-full">
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
             <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
               <Label>Original</Label>
+              <div className="w-full h-64 rounded-md overflow-hidden">
               {originalImage && (
-                <div className="w-full h-64 rounded-md overflow-hidden">
                   <img
                     src={originalImage}
                     alt="Original"
                     className="w-full h-full object-contain"
                   />
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <Button
@@ -275,22 +275,24 @@ export default function Page() {
 
             <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
               <Label>Rubiksified</Label>
+              <div className="w-full h-64 rounded-md overflow-hidden">
               {processedImage && (
-                <div className="w-full h-64 rounded-md overflow-hidden">
                   <img
                     src={processedImage}
                     alt="Rubiksified"
                     className="w-full h-full object-contain"
                   />
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
-        <hr className="w-full border-t border-gray-400 my-1" />
+        {processedImage && (
+          <hr className="w-full border-t border-gray-400 mt-1" />
+        )}
 
         {processedImage && cubes.length === 0 && (
-          <Button onClick={getCubeAlgorithms} className="mt-4" disabled={isLoading}>
+          <Button onClick={getCubeAlgorithms} className="" disabled={isLoading}>
             {isLoading ? 'Loading...' : 'Get cube algorithms'}
           </Button>
         )}
