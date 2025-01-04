@@ -314,38 +314,37 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2 w-full">
-            <Label htmlFor="fileUpload">Image to Rubiksify</Label>
-            <Input
-              id="fileUpload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="w-full"
-            />
-          </div>
         </div>
         <hr className="w-full border-t border-gray-400 mt-1" />
 
-        <div className="rounded-lg  w-full">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
-            <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
-              <Label>Original</Label>
-              <div className="w-full h-64 rounded-md overflow-hidden">
-                {originalImage ? (
-                  <img
-                    src={originalImage}
-                    alt="Original"
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                    <MissingImageIcon />
-                  </div>
-                )}
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr,2fr] gap-4 items-center w-full">
+          <div className="flex flex-col items-center gap-2 w-full">
+            <Label>Original</Label>
+            <div className="w-full h-64 rounded-md overflow-hidden">
+              {originalImage ? (
+                <img
+                  src={originalImage}
+                  alt="Original"
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <MissingImageIcon />
+                </div>
+              )}
             </div>
+            <div className="flex flex-col gap-2 w-full">
+              <Input
+                id="fileUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="w-full"
+              />
+            </div>
+          </div>
 
+          <div className="flex justify-center items-center">
             <Button
               onClick={processImage}
               disabled={!originalImage}
@@ -356,23 +355,25 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
             >
               <ArrowRight className="w-8 h-8" />
             </Button>
+          </div>
 
-            <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
-              <Label>Rubiksified</Label>
-              <div className="w-full h-64 rounded-md overflow-hidden">
-                {processedImage ? (
-                  <img
-                    src={processedImage}
-                    alt="Rubiksified"
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                    <MissingImageIcon />
-                  </div>
-                )}
-              </div>
+          <div className="flex flex-col items-center gap-2 w-full">
+            <Label>Rubiksified</Label>
+            <div className="w-full h-64 rounded-md overflow-hidden">
+              {processedImage ? (
+                <img
+                  src={processedImage}
+                  alt="Rubiksified"
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <MissingImageIcon />
+                </div>
+              )}
             </div>
+            {/* Add this div to match the height of the file input */}
+            <div className="h-[38px]" /> {/* 38px is the default height of the input */}
           </div>
         </div>
         {processedImage && (
