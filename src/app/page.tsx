@@ -12,6 +12,7 @@ import { hexToRgb } from '../lib/colorUtils'
 import { CubeInfo, getCubesFor } from '../lib/getCubesFor'
 import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
+import { MissingImageIcon } from '../components/MissingImageIcon'
 import './styles/pulse.css'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
@@ -252,12 +253,16 @@ export default function Page() {
             <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
               <Label>Original</Label>
               <div className="w-full h-64 rounded-md overflow-hidden">
-              {originalImage && (
+                {originalImage ? (
                   <img
                     src={originalImage}
                     alt="Original"
                     className="w-full h-full object-contain"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <MissingImageIcon />
+                  </div>
                 )}
               </div>
             </div>
@@ -276,12 +281,16 @@ export default function Page() {
             <div className="flex flex-col items-center gap-2 w-full md:w-2/5">
               <Label>Rubiksified</Label>
               <div className="w-full h-64 rounded-md overflow-hidden">
-              {processedImage && (
+                {processedImage ? (
                   <img
                     src={processedImage}
                     alt="Rubiksified"
                     className="w-full h-full object-contain"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <MissingImageIcon />
+                  </div>
                 )}
               </div>
             </div>
