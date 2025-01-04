@@ -70,6 +70,13 @@ export default function Page() {
       reader.readAsDataURL(file)
     }
   }
+  
+  const scrollToBottom = useCallback(() => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  }, [])
 
   const processImage = useCallback(async () => {
     if (!originalImage) return
@@ -156,6 +163,18 @@ export default function Page() {
   };
 
   const faces = Object.keys(colors) as Array<keyof typeof colors>
+
+  useEffect(() => {
+    if (processedImage) {
+      scrollToBottom();
+    }
+  }, [processedImage, scrollToBottom]);
+
+  useEffect(() => {
+    if (cubes.length > 0) {
+      scrollToBottom();
+    }
+  }, [cubes, scrollToBottom]);
 
   return (
     <div className="flex flex-col items-center justify-center pt-2 px-4 pb-4">
