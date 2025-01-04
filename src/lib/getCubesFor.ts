@@ -1,4 +1,6 @@
 import { rgbComponents } from './colorUtils'
+import { batchedPromiseAll } from 'batched-promise-all'
+import { solveCube } from './solveCube'
 
 export type Colors = {
   U: string
@@ -23,6 +25,31 @@ export type CubeInfo = {
 export type GetCubesResult = {
   error?: string
   cubes?: Array<CubeInfo>
+}
+
+export type ExportCubesResult = {
+  x: number
+  y: number
+  cubeDefn: string
+  orientation: {
+    [key in keyof Colors]: {
+      colorName: string
+      colorValue: string
+    }
+  }
+  generator: string
+}[]
+
+export async function exportAllCubes(cubes: CubeInfo[], colorMap: {[key: string]: string}): Promise<ExportCubesResult> {
+  return await batchedPromiseAll(cubes, async ({x, y, cubeDefn, orientation}) => {
+    const generator = await solveCube(cubeDefn);
+    return {
+      x, y, cubeDefn, generator,
+      orientation: Object.fromEntries(Object.entries(orientation).map(([k, v]) => {
+        return [k, {colorName: v, colorValue: colorMap[v]}]
+      }))
+    }
+  }, 250);
 }
 
 export async function getCubesFor(image: Uint8Array, colors: Colors): Promise<GetCubesResult> {

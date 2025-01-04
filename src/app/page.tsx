@@ -9,12 +9,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowRight, HelpCircle } from 'lucide-react'
 import { hexToRgb } from '../lib/colorUtils'
-import { Colors, CubeInfo, getCubesFor } from '../lib/getCubesFor'
+import { Colors, CubeInfo, getCubesFor, exportAllCubes } from '../lib/getCubesFor'
 import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
 import { MissingImageIcon } from '../components/MissingImageIcon'
 import './styles/pulse.css'
 import { useSearchParams } from 'next/navigation'
+import { ExportPopup } from '../components/ExportPopup'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
@@ -63,13 +64,16 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
     originalImage: string | null;
   }>(null);
   const listRef = useRef<List>(null)
-
   const [cubesW, cubesH] = useMemo<[number,number]>(() => {
     if (cubes.length === 0)
       return [-1, -1]
     const {x,y} = cubes[cubes.length-1]
     return [x+1, y+1]
   }, [cubes])
+
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportedData, setExportedData] = useState<string | null>(null)
+  const [isExportPopupOpen, setIsExportPopupOpen] = useState(false)
 
   useEffect(() => {
     setCubes([]);
@@ -217,6 +221,20 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
       scrollToBottom();
     }
   }, [cubes, scrollToBottom]);
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const exportedCubes = await exportAllCubes(cubes, colors)
+      setExportedData(JSON.stringify(exportedCubes, null, 2))
+      setIsExportPopupOpen(true)
+    } catch (error) {
+      console.error('Error exporting cubes:', error)
+      // You might want to show an error message to the user here
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center pt-2 px-4 pb-4">
@@ -436,6 +454,18 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
                 </AutoSizer>
               </div>
             </div>
+            <div className="w-full">
+              <Button onClick={handleExport} disabled={isExporting || cubes.length === 0} className="w-40">
+                {isExporting ? 'Exporting...' : 'Export'}
+              </Button>
+            </div>
+            {exportedData && (
+              <ExportPopup
+                isOpen={isExportPopupOpen}
+                onClose={() => setIsExportPopupOpen(false)}
+                jsonData={exportedData}
+              />
+            )}
           </>
         )}
       </div>
