@@ -42,7 +42,7 @@ export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: Rubi
   }, [cubeDefn])
 
   return (
-    <Card className="w-full">
+    <Card className="m-2">
       <CardHeader className="flex flex-row justify-between items-start">
         <TooltipProvider>
           <Tooltip>

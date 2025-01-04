@@ -292,7 +292,7 @@ export default function Page() {
               </div>
               <Button onClick={skipToCoordinates}>Skip to coordinates</Button>
             </div>
-            <div className="rounded-lg p-4 w-full">
+            <div className="rounded-lg border-gray-600 border-2 w-full">
               <div className="w-full h-[600px]">
                 <AutoSizer>
                   {({ height, width }) => (
