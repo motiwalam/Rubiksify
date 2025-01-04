@@ -1,6 +1,8 @@
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useState } from 'react';
+import { HelpCircle } from 'lucide-react'
 
 interface ForceExactSizeToggleProps {
   checked: boolean
@@ -8,13 +10,26 @@ interface ForceExactSizeToggleProps {
 }
 
 export function ForceExactSizeToggle({ checked, onCheckedChange }: ForceExactSizeToggleProps) {
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   return (
     <div className="flex flex-row-reverse justify-end items-center space-x-2 space-x-reverse w-full">
       <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild className="flex flex-row-reverse items-center space-x-2 space-x-reverse cursor-help">
-            <div className="flex items-center gap-2 cursor-help">
-              <Label htmlFor="force-exact-size" className="cursor-help order-2">Force exact size</Label>
+        <Tooltip open={isTooltipOpen} onOpenChange={setIsTooltipOpen}>
+          <TooltipTrigger asChild>
+            <div className="flex items-center relative gap-2">
+              <TooltipTrigger asChild>
+                <HelpCircle 
+                  className="w-4 h-4 absolute -left-5 top-1/2 transform -translate-y-1/2 cursor-help text-muted-foreground" 
+                  onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+                />
+              </TooltipTrigger>
+              <Label 
+                htmlFor="force-exact-size" 
+                className="cursor-pointer"
+                onClick={() => setIsTooltipOpen(!isTooltipOpen)}
+              >
+                Force exact size
+              </Label>
               <Switch
                 id="force-exact-size"
                 checked={checked}

@@ -20,6 +20,9 @@ interface RubiksCardProps {
 export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: RubiksCardProps) {
   const [moves, setMoves] = useState<string | null>(null)
   const [showFullNet, setShowFullNet] = useState(false)
+  const [isFrontTopTooltipOpen, setIsFrontTopTooltipOpen] = useState(false)
+  const [isCoordinatesTooltipOpen, setIsCoordinatesTooltipOpen] = useState(false)
+  const [isMovesTooltipOpen, setIsMovesTooltipOpen] = useState(false)
   
   const {movesLength, cubeDefnColored, solvedCubeDefn} = useMemo(() => {
     const movesLength = (moves !== null) && `(${moves.split(' ').filter(Boolean).length})`
@@ -45,11 +48,11 @@ export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: Rubi
     <Card className="m-2">
       <CardHeader className="flex flex-row justify-between items-start">
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="space-y-1 cursor-help">
+          <Tooltip open={isFrontTopTooltipOpen} onOpenChange={setIsFrontTopTooltipOpen}>
+            <TooltipTrigger asChild onClick={() => setIsFrontTopTooltipOpen(!isFrontTopTooltipOpen)}>
+              <div className="space-y-1 cursor-pointer" >
                 <div className="flex items-center gap-2">
-                  <span>Front:</span>
+                  <span className="border-b border-dotted border-gray-500">Front</span>:
                   <div 
                     className="w-4 h-4 border border-black" 
                     style={{ backgroundColor: colors[frontColor] }}
@@ -57,7 +60,7 @@ export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: Rubi
                   <span>{frontColor}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>Top:</span>
+                  <span className="border-b border-dotted border-gray-500">Top</span>:
                   <div 
                     className="w-4 h-4 border border-black" 
                     style={{ backgroundColor: colors[topColor] }}
@@ -75,10 +78,10 @@ export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: Rubi
           </Tooltip>
         </TooltipProvider>
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="text text-muted-foreground cursor-help">
-                ({x}, {y})
+          <Tooltip open={isCoordinatesTooltipOpen} onOpenChange={setIsCoordinatesTooltipOpen}>
+            <TooltipTrigger asChild onClick={() => setIsCoordinatesTooltipOpen(!isCoordinatesTooltipOpen)}>
+              <div className="text text-muted-foreground cursor-pointer">
+                <span className="border-b border-dotted border-gray-500">({x}, {y})</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="left" align="end">
@@ -100,10 +103,10 @@ export default function RubiksCard({ x, y, cubeDefn, orientation, colors }: Rubi
           <Label htmlFor={`show-full-net-${x}-${y}`}>Show full cube net</Label>
         </div>
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="text cursor-help">
-                Moves {movesLength ?? ''}: {moves ?? 'Loading...'}
+          <Tooltip open={isMovesTooltipOpen} onOpenChange={setIsMovesTooltipOpen}>
+            <TooltipTrigger asChild onClick={() => setIsMovesTooltipOpen(!isMovesTooltipOpen)}>
+              <div className="text cursor-pointer">
+                <span className="border-b border-dotted border-gray-500">Moves</span> {movesLength ?? ''}: {moves ?? 'Loading...'}
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs">
