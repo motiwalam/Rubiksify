@@ -409,7 +409,7 @@ export default function Page() {
                   className="w-full"
                 />
               </div>
-              <Button onClick={skipToCoordinates}>Skip to coordinates</Button>
+              <Button onClick={skipToCoordinates}>Jump to coordinates</Button>
             </div>
             <div className="w-full text-left">
               Total of <span className="font-bold">{cubes.length}</span> cube{cubes.length !== 1 ? 's' : ''} needed. Final image is <span className="">{cubesW}</span>x<span className="">{cubesH}</span> in cubes and <span className="">{3*cubesW}</span>x<span className="">{3*cubesH}</span> in pixels.
