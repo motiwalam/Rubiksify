@@ -223,7 +223,16 @@ export default function Page() {
                 type="number"
                 id="width"
                 value={width}
-                onChange={(e) => setWidth(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = Math.max(1, parseInt(e.target.value) || 1);
+                  setWidth(value);
+                }}
+                onBlur={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value)) {
+                    setWidth(value);
+                  }
+                }}
                 min={1}
                 className="w-full"
               />
@@ -234,7 +243,16 @@ export default function Page() {
                 type="number"
                 id="height"
                 value={height}
-                onChange={(e) => setHeight(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = Math.max(1, parseInt(e.target.value) || 1);
+                  setHeight(value);
+                }}
+                onBlur={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value)) {
+                    setHeight(value);
+                  }
+                }}
                 min={1}
                 className="w-full"
               />
