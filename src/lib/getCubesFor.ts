@@ -40,9 +40,10 @@ export type ExportCubesResult = {
   generator: string
 }[]
 
-export async function exportAllCubes(cubes: CubeInfo[], colorMap: {[key: string]: string}): Promise<ExportCubesResult> {
+export async function exportAllCubes(cubes: CubeInfo[], colorMap: {[key: string]: string}, onSolved: () => void): Promise<ExportCubesResult> {
   return await batchedPromiseAll(cubes, async ({x, y, cubeDefn, orientation}) => {
     const generator = await solveCube(cubeDefn);
+    onSolved();
     return {
       x, y, cubeDefn, generator,
       orientation: Object.fromEntries(Object.entries(orientation).map(([k, v]) => {

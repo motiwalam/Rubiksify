@@ -74,6 +74,7 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportedData, setExportedData] = useState<string | null>(null)
   const [isExportPopupOpen, setIsExportPopupOpen] = useState(false)
+  const [numExported, setNumExported] = useState(0);
 
   useEffect(() => {
     setCubes([]);
@@ -224,8 +225,12 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
 
   const handleExport = async () => {
     setIsExporting(true)
+    setNumExported(0)
+
     try {
-      const exportedCubes = await exportAllCubes(cubes, colors)
+      const exportedCubes = await exportAllCubes(cubes, colors, () => {
+        setNumExported(x => x + 1)
+      })
       setExportedData(JSON.stringify(exportedCubes, null, 2))
       setIsExportPopupOpen(true)
     } catch (error) {
@@ -456,7 +461,7 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
             </div>
             <div className="w-full">
               <Button onClick={handleExport} disabled={isExporting || cubes.length === 0} className="w-40">
-                {isExporting ? 'Exporting...' : 'Export'}
+                {isExporting ? `${numExported}/${cubes.length}` : 'Export'}
               </Button>
             </div>
             {exportedData && (
