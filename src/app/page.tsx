@@ -13,10 +13,11 @@ import { Colors, CubeInfo, getCubesFor, exportAllCubes } from '../lib/getCubesFo
 import RubiksCardListItem from '../components/RubiksCardListItem'
 import { ForceExactSizeToggle } from '../components/ForceExactSizeToggle'
 import { MissingImageIcon } from '../components/MissingImageIcon'
-import './styles/pulse.css'
+import '../styles/pulse.css'
 import { useSearchParams } from 'next/navigation'
 import { ExportPopup } from '../components/ExportPopup'
 import { SharePopup } from '../components/SharePopup'
+import GithubCorner from '@/components/GithubCorner'
 
 type DitherType = 'None' | 'Riemersma' | 'FloydSteinberg'
 
@@ -510,6 +511,7 @@ function PageContent({ searchParams }: { searchParams: URLSearchParams }) {
           </>
         )}
       </div>
+      <GithubCorner />
     </div>
   )
 }
